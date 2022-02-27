@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 1000%;
+            text-align: center;
+            padding-top: 16%;
+        }
+    </style>
+    <script>
+        var i = 0;
+        function epilepsie() {
+            if (i == 0) {
+                document.body.style.backgroundColor = "red";
+                document.body.style.color = "white";
+                i = 1;
+            } else {
+                document.body.style.backgroundColor = "white";
+                document.body.style.color = "red";
+                i = 0;
+            }
+        }
+    </script>
+</head>
+
+<body onload="myVar = setInterval(epilepsie, 100)">
+    I LOVE FORTNITE
+</body>
+
+</html>
