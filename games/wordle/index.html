@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woordel</title>
+
+    <!-- GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --main-black: #141414;
+            --main-white: #e8e8e8;
+            --accent-gray: #4d4d4d;
+            --letter-gray: #3a3a3c;
+            --letter-yellow: #b59f3b;
+            --letter-green: #538d4e;
+            --key-background: #818384;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--main-black);
+
+        }
+
+        header {
+            font-family: Roboto Slab;
+            font-size: 50px;
+            letter-spacing: -2px;
+            color: var(--main-white);
+            text-align: center;
+            border-bottom: 1px solid var(--accent-gray);
+            padding: 5px 0;
+        }
+
+        main {
+            padding: 50px 4vw;
+            max-width: 420px;
+        }
+
+        #words-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        #words-grid>div {
+            margin: 1vw;
+            overflow: hidden;
+            position: sticky;
+        }
+
+        .not-guessed {
+            border: 2px solid var(--accent-gray);
+            width: calc((92vw / 5) - 2vw - 4px);
+            height: calc((92vw / 5) - 2vw - 4px);
+            max-width: 70px;
+            max-height: 70px;
+        }
+
+        .guessed {
+            width: calc((92vw / 5) - 2vw);
+            height: calc((92vw / 5) - 2vw);
+            max-width: 74px;
+            max-height: 74px;
+            background: var(--letter-gray);
+        }
+
+        .letter {
+            font-family: Lato;
+            color: var(--main-white);
+            text-align: center;
+            line-height: calc((92vw / 5) - 2vw - 4px);
+            vertical-align: center;
+            font-size: calc(((92vw / 5) - 2vw - 4px) / 1.8);
+            text-transform: uppercase;
+        }
+
+        .wrong {
+            background: var(--letter-gray);
+        }
+
+        .wrong-location {
+            background: var(--letter-yellow);
+        }
+
+        .right {
+            background: var(--letter-green);
+        }
+
+        .rotate {
+            animation-name: rotateAnimation;
+            animation-duration: 500ms;
+            animation-delay: 0s;
+            animation-timing-function: linear;
+        }
+
+        #onscreen-keyboard {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .key {
+            font-family: Lato;
+            text-transform: uppercase;
+            overflow: hidden;
+            background-color: var(--key-background);
+            color: var(--main-white);
+            margin: 5px;
+            width: calc((92vw / 10) - 10px);
+            height: 60px;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 60px;
+            vertical-align: center;
+        }
+
+        #enter {
+            flex-grow: 3;
+        }
+
+        #backspace {
+            flex-grow: 2;
+            background-image: url("https://pics.freeicons.io/uploads/icons/png/20846354301551940350-512.png");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 40px;
+            font-size: 0;
+            color: var(--key-background);
+        }
+
+        @keyframes rotateAnimation {
+            50% {
+                transform: scaleY(0%);
+            }
+        }
+
+        @media (min-width: 460px) {
+            main {
+                padding: 50px 0;
+                margin: 0 auto;
+            }
+
+            #words-grid>div {
+                margin: 5px;
+            }
+
+            .letter {
+                line-height: 70px;
+                font-size: 40px;
+            }
+        }
+
+        @media (min-width: 500px) {}
+    </style>
+</head>
+
+<body>
+    <header>
+        Woordel
+    </header>
+    <main>
+        <div id="words-grid"></div>
+        <div id="onscreen-keyboard"></div>
+    </main>
+</body>
+
+<script>
+    const numberOfWords = 6;
+    const numberOfLetters = 5;
+    const wordsGrid = document.getElementById("words-grid");
+    let guesses = ["peeis", "eeeee", , , ,];
+    const wordOfTheDay = "peeis";
+    setGrid();
+    fillGrid();
+    generateOnscreenKeyboard()
+
+    function setGrid() {
+        let html = "";
+        for (let i = 0; i < numberOfWords; i++) {
+            for (let j = 0; j < numberOfLetters; j++) {
+                html += `<div class="letter not-guessed" id="${i}-${j}"></div>`;
+            }
+        }
+        wordsGrid.innerHTML = html;
+    }
+
+    function fillGrid() {
+        let rowCount = 0;
+        while (rowCount < 6 && guesses[rowCount] != null) {
+            fillRow(rowCount);
+            rowCount++;
+        }
+    }
+
+    function fillRow(row) {
+        for (let i = 0; i < numberOfLetters; i++) {
+            setTimeout(function () {
+                let item = document.getElementById(`${row}-${i}`);
+                item.innerHTML = guesses[row][i];
+                item.classList.add("rotate");
+                setTimeout(function () {
+                    item.classList.remove("not-guessed");
+                    item.classList.add("guessed");
+                    item.classList.add("letter");
+                }, 250);
+            }, 100 * i);
+        }
+
+        let temp = wordOfTheDay;
+        for (let i = 0; i < numberOfLetters; i++) {
+            let item = document.getElementById(`${row}-${i}`);
+            if (guesses[row][i] === temp[i]) {
+                temp = temp.replace(temp[i], " ");
+                setTimeout(function () {
+                    item.classList.add("right");
+                }, 100 * i + 250);
+            }
+        }
+        for (let i = 0; i < numberOfLetters; i++) {
+            let item = document.getElementById(`${row}-${i}`);
+            if (temp.includes(guesses[row][i])) {
+                temp = temp.replace(guesses[row][i], " ");
+                setTimeout(function () {
+                    item.classList.add("wrong-location");
+                }, 100 * i + 250);
+            }
+        }
+    }
+
+    /*KEYBOARD FUNCTIONS*/
+    function addKey(key) {
+
+    }
+
+    function generateOnscreenKeyboard() {
+        const azerty = ["a", "z", "e", "r", "t", "y", "u", "i", "o", "p", "q", "s", "d", "f", "g", "h", "j", "k", "l", "m", "enter", "w", "x", "c", "v", "b", "n", "backspace"];
+        const qwerty = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", "enter", "z", "x", "c", "v", "b", "n", "m", "backspace"];
+        const currentLayout = azerty;
+
+        const onscreenKeyboard = document.getElementById("onscreen-keyboard");
+        let keyboardHTML = "";
+
+        for (let i = 0; i < currentLayout.length; i++) {
+            keyboardHTML += `<div class="key" id="${currentLayout[i]}" onclick="${addKey(currentLayout[i])}">${currentLayout[i]}</div>`;
+        }
+        onscreenKeyboard.innerHTML = keyboardHTML;
+    }
+</script>
+
+</html>
