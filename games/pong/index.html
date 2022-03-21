@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="reset.css">
+	<link rel="stylesheet" href="stijl.css">
+	<title>Pong</title>
+</head>
+
+<body>
+	<div id="grid"></div>
+</body>
+
+<script>
+	const BACKGROUNDCOLOR = "#181818";
+	const FOREGROUNDCOLOR = "#F5F5F5";
+
+	let grid = document.getElementById('grid');
+	const GRIDHEIGHT = 525;
+	const GRIDWIDTH = 858;
+	const FRAMESPERSECOND = 30;
+	let mousePosY;
+	onmousemove = function (e) { /*console.log("mouse location:", e.clientX, e.clientY)*/  mousePosY = e.clientY }
+
+
+	let ball;
+	const BALLHEIGHT = 10;
+	const BALLWIDTH = 10;
+	let ballPositionX = 0;
+	let ballPositionY = 0;
+	let ballVectorX = 20;
+	let ballVectorY = 8;
+
+	let player1;
+	let player1Height = 0;
+	let scorePlayer1 = 0;
+	let player2;
+	let player2Height = 0;
+	let scorePlayer2 = 0;
+	let maxPlayer2Speed = 10;
+	const PLAYERHEIGHT = 80;
+	const PLAYERWIDTH = 10;
+	const DISTANCEFROMWALL = 80;
+
+	function setup() {
+		grid.innerHTML += '<div id="scorePlayer1"></div>';
+		grid.innerHTML += '<div id="scorePlayer2"></div>';
+		grid.innerHTML += '<div id="ball"></div>';
+		grid.innerHTML += '<div id="player1"></div>';
+		grid.innerHTML += '<div id="player2"></div>';
+
+		ball = document.getElementById("ball");
+		ball.style.width = BALLWIDTH + "px";
+		ball.style.height = BALLHEIGHT + "px";
+
+		player1 = document.getElementById("player1");
+		player1.style.width = PLAYERWIDTH + "px";
+		player1.style.height = PLAYERHEIGHT + "px";
+		player1.style.left = DISTANCEFROMWALL + "px";
+
+		player2 = document.getElementById("player2");
+		player2.style.width = PLAYERWIDTH + "px";
+		player2.style.height = PLAYERHEIGHT + "px";
+		player2.style.right = DISTANCEFROMWALL + "px";
+
+		player1Score = document.getElementById("scorePlayer1");
+		player2Score = document.getElementById("scorePlayer2");
+		setScore();
+		spawnBall();
+	}
+
+	function loop() {
+		//CHECK FOR BALL COLISSION AGAINST WALLS
+		if (!isValidPosition(ballPositionX + ballVectorX, ballPositionY + ballVectorY, BALLWIDTH, BALLHEIGHT)) {
+			if (!isValidPosition(ballPositionX + ballVectorX, ballPositionY, BALLWIDTH, BALLHEIGHT)) { //Hits left/right
+				ballVectorX *= -1;
+				if (ballVectorX > 0) {
+					scorePlayer2++;
+				} else {
+					scorePlayer1++;
+				}
+				setScore();
+				spawnBall();
+			}
+			if (!isValidPosition(ballPositionX, ballPositionY + ballVectorY, BALLWIDTH, BALLHEIGHT)) { //Hits top/bottom
+				ballVectorY *= -1;
+			}
+		}
+
+		//CHECK FOR BALL COLISSIONS AGAINS PLAYERS
+		if (inPlayer(ballPositionX + ballVectorX, ballPositionY, BALLWIDTH, BALLHEIGHT)) { //Hits player at left/right
+			ballVectorX *= -1;
+			ballVectorY
+		}
+		if (inPlayer(ballPositionX, ballPositionY + ballVectorY, BALLWIDTH, BALLHEIGHT)) { //Hits player at top/bottom
+			ballVectorY *= -1;
+		}
+
+		ballPositionX += ballVectorX;
+		ballPositionY += ballVectorY;
+		moveBall(ballPositionX, ballPositionY);
+		movePlayer1();
+		movePlayer2();
+
+		setTimeout(loop, FRAMESPERSECOND);
+	}
+
+	function moveBall(x, y) { //Move ball to specified location
+		if (isValidPosition(x, y, BALLWIDTH, BALLHEIGHT)) {
+			ball.style.left = x + "px";
+			ball.style.top = y + "px";
+		}
+	}
+
+	function movePlayer1() { //Move left player (player)
+		newPosition = (mousePosY - ((screen.height - GRIDHEIGHT) / 2))
+		if (isValidPosition(DISTANCEFROMWALL, newPosition, PLAYERWIDTH, PLAYERHEIGHT)) {
+			player1Height = (newPosition);
+		} else if (mousePosY <= ((screen.height - GRIDHEIGHT) / 2)) {
+			player1Height = 0;
+		} else {
+			player1Height = GRIDHEIGHT - PLAYERHEIGHT;
+		}
+		player1.style.top = player1Height + "px";
+	}
+
+	function movePlayer2() { //Move right player (bot)
+		let newPosition = ballPositionY - (PLAYERHEIGHT / 2) + (BALLHEIGHT / 2);
+		if (isValidPosition(DISTANCEFROMWALL, newPosition, PLAYERWIDTH, PLAYERHEIGHT)) {
+			if (Math.abs(player2Height - newPosition) > maxPlayer2Speed) {
+				if (newPosition < player2Height) {
+					newPosition = player2Height - maxPlayer2Speed;
+				} else if (newPosition > player2Height) {
+					newPosition = player2Height + maxPlayer2Speed;
+				}
+			}
+			player2Height = newPosition;
+			player2.style.top = player2Height + "px";
+		}
+	}
+
+	function setScore() { //Set visible score for both players
+		player1Score.innerHTML = scorePlayer1;
+		player2Score.innerHTML = scorePlayer2;
+	}
+
+	function spawnBall() { //Spawn ball in the center
+		ballPositionX = (GRIDWIDTH - BALLWIDTH) / 2;
+		ballPositionY = (GRIDHEIGHT - BALLHEIGHT) / 2;
+		ballVectorX = (Math.random() * 5) + 12;
+		if (Math.random() > 0.5)
+			ballVectorX *= -1;
+		ballVectorY = (Math.random() * 5) + 8;
+		if (Math.random() > 0.5)
+			ballVectorY *= -1;
+	}
+
+	function isValidPosition(x, y, objectWidth, objectHeight) { //Checks if the given coordinates + given dimensions fit into the grid
+		return x >= 0 && x <= GRIDWIDTH - objectWidth && y >= 0 && y <= GRIDHEIGHT - objectHeight;
+	}
+
+	function inPlayer(x, y, objectWidth, objectHeight) { //Checks if given coordinates + given dimensions overlap with a player
+		if (x >= DISTANCEFROMWALL - objectWidth && x <= DISTANCEFROMWALL + PLAYERWIDTH && y >= player1Height - objectHeight && y <= player1Height + PLAYERHEIGHT) {
+			return true;
+		}
+		if (x >= GRIDWIDTH - DISTANCEFROMWALL - PLAYERWIDTH - objectWidth && x <= GRIDWIDTH - DISTANCEFROMWALL && y >= player2Height - objectHeight && y <= player2Height + PLAYERHEIGHT) {
+			return true;
+		}
+		return false;
+	}
+
+	setup();
+	loop();
+</script>
+
+</html>
